@@ -1,0 +1,16 @@
+profiles:
+  default:
+    fqbn: m5stack:esp32:m5stack_stamp_c3
+    platforms:
+      - platform: m5stack:esp32 (3.2.5)
+        platform_index_url: https://static-cdn.m5stack.com/resource/arduino/package_m5stack_index.json
+    libraries:
+      - M5StampC3LED (0.0.1)
+      - Adafruit NeoPixel (1.15.2)
+      - M5HAL (0.0.2)
+      - M5Unit-ENV (1.3.1)
+      - M5UnitUnified (0.3.0)
+      - M5Utility (0.0.9)
+      - BME68x Sensor library (1.3.40408)
+      - bsec2 (1.10.2610)
+default_profile: default
