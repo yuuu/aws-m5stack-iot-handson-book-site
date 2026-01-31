@@ -1,3 +1,3 @@
 IoTシステムのデバイスのファームウェアです。
-arduino-cliを使って、Arduino Sketchを開発します。
-使用するボードやライブラリは `env-sensor/sketch.yaml` を参照ください。
+arduino-esp32を使って実装し、arduino-cliでビルド・アップロードを行います。
+1つの関数が20行を超えないように実装してください。

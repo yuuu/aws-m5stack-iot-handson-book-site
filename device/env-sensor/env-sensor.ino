@@ -1,61 +1,93 @@
-#include "M5UnitENV.h"
+#include <M5Unified.h>
+#include <M5UnitUnified.h>
+#include <M5UnitUnifiedENV.h>
+#include <TaskScheduler.h>
 
-SHT3X sht3x;
-QMP6988 qmp;
+typedef struct 
+{
+  float temperature;
+  float humidity;
+  float pressure;
+} Sensor;
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("Environment Sensor Starting...");
+void initSensor();
+bool readSensor();
+void doTask();
+void exit();
 
-  // Initialize QMP6988 pressure sensor
-  // I2C pins: SDA=2, SCL=1, Frequency=400kHz
-  if (!qmp.begin(&Wire, QMP6988_SLAVE_ADDRESS_L, 2, 1, 400000U)) {
-    Serial.println("Couldn't find QMP6988");
-    while (1) {
-      delay(1000);
-    }
-  }
+namespace
+{
+  auto &lcd = M5.Display;
+  m5::unit::UnitUnified Units;
+  m5::unit::UnitENV3 unitENV3;
+  auto &sht30 = unitENV3.sht30;
+  auto &qmp6988 = unitENV3.qmp6988;
 
-  // Initialize SHT3X temperature and humidity sensor
-  if (!sht3x.begin(&Wire, SHT3X_I2C_ADDR, 2, 1, 400000U)) {
-    Serial.println("Couldn't find SHT3X");
-    while (1) {
-      delay(1000);
-    }
-  }
-
-  Serial.println("Sensors initialized successfully");
+  Sensor sensor;
+  Task task(5000, TASK_FOREVER, &doTask);
+  Scheduler runner;
 }
 
-void loop() {
-  // Update sensor data
-  if (sht3x.update()) {
-    Serial.println("-----SHT3X-----");
-    Serial.print("Temperature: ");
-    Serial.print(sht3x.cTemp);
-    Serial.println(" *C");
-    Serial.print("Humidity: ");
-    Serial.print(sht3x.humidity);
-    Serial.println(" %rH");
-    Serial.println("---------------");
+void setup()
+{
+  M5.begin();
+  initSensor();
+
+  runner.init();
+  runner.addTask(task);
+  task.enable();
+}
+
+void loop()
+{
+  runner.execute();
+}
+
+void initSensor()
+{
+  auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
+  auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
+
+  Wire.end();
+  Wire.begin(pin_num_sda, pin_num_scl, 400000U);
+
+  if (!Units.add(unitENV3, Wire) || !Units.begin())
+  {
+    M5_LOGE("Failed to begin");
+    exit();
+  }
+}
+
+bool readSensor()
+{
+  if (!sht30.updated() || !qmp6988.updated())
+  {
+    return false;
   }
 
-  if (qmp.update()) {
-    Serial.println("-----QMP6988-----");
-    Serial.print("Temperature: ");
-    Serial.print(qmp.cTemp);
-    Serial.println(" *C");
-    Serial.print("Pressure: ");
-    Serial.print(qmp.pressure);
-    Serial.println(" Pa");
-    Serial.print("Approx altitude: ");
-    Serial.print(qmp.altitude);
-    Serial.println(" m");
-    Serial.println("-----------------");
+  sensor.temperature = sht30.temperature();
+  sensor.humidity = sht30.humidity();
+  sensor.pressure = qmp6988.pressure() * 0.01f;
+  return true;
+}
+
+void doTask()
+{
+  M5.update();
+  Units.update();
+
+  if(readSensor()) {
+    M5.Log.printf(
+      "Temperature: %2.2f, Humidity:%2.2f, Pressure: %.2f\n",
+      sensor.temperature,
+      sensor.humidity,
+      sensor.pressure
+    );
   }
+}
 
-  Serial.println();
-
-  // Wait for 1 minute (60000 milliseconds)
-  delay(60000);
+void exit() {
+  while(true) {
+    delay(1000);
+  }
 }
