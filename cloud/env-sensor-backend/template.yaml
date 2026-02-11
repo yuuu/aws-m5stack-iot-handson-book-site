@@ -7,7 +7,7 @@ Transform:
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
     MemorySize: 512
     Runtime: ruby3.4
     Architectures:
@@ -21,7 +21,6 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/dashboard/app.handler
-      Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref SensorReadingsTable
@@ -41,6 +40,42 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+
+  IoTTopicRuleDynamoDBv2:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: StorageTemperature
+      TopicRulePayload:
+        Sql: SELECT topic(2) AS id, timestamp() AS timestamp, value FROM 'temperature/#'
+        RuleDisabled: false
+        Actions:
+          - DynamoDBv2:
+              PutItem:
+                TableName: !Ref SensorReadingsTable
+              RoleArn: !GetAtt IoTTopicRuleIAMRole.Arn
+
+  IoTTopicRuleIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: IAMRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - iot.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: IoTRuleDynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt SensorReadingsTable.Arn
 
 Outputs:
   WebEndpoint:

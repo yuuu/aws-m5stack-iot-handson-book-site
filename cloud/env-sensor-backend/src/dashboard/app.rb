@@ -1,14 +1,19 @@
 # frozen_string_literal: true
 
-require "aws-sdk-dynamodb"
+require "erb"
+require "json"
 
 def handler(event:, context:)
-  data = client.scan(table_name: ENV["SENSOR_READINGS_TABLE"])
-  items = data.items
+  @temperature = 25.1
+  @humidity = 45.5
+  @pressure = 1012.8
 
-  { statusCode: 200, body: items.to_json }
-end
+  template = File.read(File.join(__dir__, "index.html.erb"))
+  body = ERB.new(template).result(binding)
 
-def client
-  @client ||= Aws::DynamoDB::Client.new
+  {
+    statusCode: 200,
+    headers: { "Content-Type": "text/html" },
+    body: body,
+  }
 end
