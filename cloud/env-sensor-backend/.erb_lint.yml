@@ -1,6 +1,7 @@
 glob: "**/*.{html,text,js}{+*,}.erb"
 exclude:
   - .aws-sam/**/*
+  - vendor/**/*
 linters:
   Rubocop:
     enabled: true

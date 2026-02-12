@@ -1,0 +1,47 @@
+name: CI 
+on: [push]
+jobs:
+  cloud-ruby-lint:
+    defaults:
+      run:
+        working-directory: ./cloud/env-sensor-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+          working-directory: cloud/env-sensor-backend
+      
+      - name: RuboCop
+        run: bundle exec rubocop
+        
+      - name: ERB Lint
+        run: bundle exec erb_lint --lint-all
+
+  cloud-ruby-build:
+    needs: cloud-ruby-lint
+    defaults:
+      run:
+        working-directory: ./cloud/env-sensor-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+          working-directory: cloud/env-sensor-backend
+      
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Build
+        run: sam build

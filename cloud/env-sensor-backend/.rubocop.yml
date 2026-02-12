@@ -3,6 +3,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - .aws-sam/**/*
+    - vendor/**/*
 
 Metrics/MethodLength:
   Exclude:
