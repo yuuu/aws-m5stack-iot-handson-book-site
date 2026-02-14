@@ -181,104 +181,40 @@
     const blueColor = 'rgb(59, 130, 246)';
     const blueBgColor = 'rgba(59, 130, 246, 0.2)';
 
-    // Temperature Chart
-    const tempCtx = document.getElementById('tempChart').getContext('2d');
-    new Chart(tempCtx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [{
-          label: '温度',
-          data: temp_data,
-          borderColor: blueColor,
-          backgroundColor: blueBgColor,
-          fill: true,
-          pointBackgroundColor: blueColor,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        }]
-      },
-      options: {
-        ...commonChartOptions,
-        plugins: {
-          ...commonChartOptions.plugins,
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                return ` ${context.dataset.label}: ${context.parsed.y} °C`;
-              }
-            }
-          }
-        }
-      }
-    });
-
-    // Humidity Chart
-    const humidityCtx = document.getElementById('humidityChart').getContext('2d');
-    new Chart(humidityCtx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [{
-          label: '湿度',
-          data: humidity_data,
-          borderColor: blueColor,
-          backgroundColor: blueBgColor,
-          fill: true,
-          pointBackgroundColor: blueColor,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        }]
-      },
-      options: {
-        ...commonChartOptions,
-        plugins: {
-          ...commonChartOptions.plugins,
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                return ` ${context.dataset.label}: ${context.parsed.y} %`;
-              }
-            }
-          }
-        }
-      }
-    });
-
-    // Pressure Chart
-    const pressureCtx = document.getElementById('pressureChart').getContext('2d');
-    new Chart(pressureCtx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [{
-          label: '気圧',
-          data: pressure_data,
-          borderColor: blueColor,
-          backgroundColor: blueBgColor,
-          fill: true,
-          pointBackgroundColor: blueColor,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        }]
-      },
-      options: {
-        ...commonChartOptions,
-        scales: {
-          ...commonChartOptions.scales,
-          y: { ...commonChartOptions.scales.y, min: 1000 }
+    [
+      ['tempChart', '温度', '°C', temp_data],
+      ['humidityChart', '湿度', '%', humidity_data],
+      ['pressureChart', '気圧', 'hPa', pressure_data]
+    ].forEach(([chartId, label, unit, data]) => {
+      const ctx = document.getElementById(chartId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label, data,
+            borderColor: blueColor,
+            backgroundColor: blueBgColor,
+            fill: true,
+            pointBackgroundColor: blueColor,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
         },
-        plugins: {
-          ...commonChartOptions.plugins,
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                return ` ${context.dataset.label}: ${context.parsed.y} hPa`;
+        options: {
+          ...commonChartOptions,
+          plugins: {
+            ...commonChartOptions.plugins,
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return ` ${context.dataset.label}: ${context.parsed.y} ${unit}`;
+                }
               }
             }
           }
         }
-      }
+      });
     });
   </script>
 </body>

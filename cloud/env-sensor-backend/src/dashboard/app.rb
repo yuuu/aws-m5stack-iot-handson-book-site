@@ -4,7 +4,7 @@ require 'erb'
 require 'json'
 require 'aws-sdk-dynamodb'
 
-ONE_DAY_AGO = (Time.now - 60 * 60 * 24).to_i * 1000
+ONE_DAY_AGO = (Time.now - (60 * 60 * 24)).to_i * 1000
 
 def dynamodb_table
   table_name = ENV.fetch('SENSOR_READINGS_TABLE', '')
@@ -16,7 +16,7 @@ def device_ids
     projection_expression: :device_id,
     filter_expression: '#TS > :timestamp',
     expression_attribute_values: { ':timestamp' => ONE_DAY_AGO },
-    expression_attribute_names: { "#TS" => "timestamp" }
+    expression_attribute_names: { '#TS' => 'timestamp' }
   )
   res.items.map { it['device_id'] }.uniq
 end
@@ -25,7 +25,7 @@ def records_for_device(device_id)
   res = dynamodb_table.query(
     key_condition_expression: 'device_id = :device_id AND #TS > :timestamp',
     expression_attribute_values: { ':device_id' => device_id, ':timestamp' => ONE_DAY_AGO },
-    expression_attribute_names: { "#TS" => "timestamp" }
+    expression_attribute_names: { '#TS' => 'timestamp' }
   )
   res.items
 end
