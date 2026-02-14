@@ -15,6 +15,7 @@ Globals:
     Environment:
       Variables:
         SENSOR_READINGS_TABLE: !Ref SensorReadingsTable
+        TZ: Asia/Tokyo
 
 Resources:
   GetAllItemsFunction:
@@ -32,21 +33,27 @@ Resources:
             Method: GET
 
   SensorReadingsTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 2
-        WriteCapacityUnits: 2
+      TableName: SensorReadings
+      AttributeDefinitions:
+        - AttributeName: device_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: device_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
 
   IoTTopicRuleDynamoDBv2:
     Type: AWS::IoT::TopicRule
     Properties:
       RuleName: StorageTemperature
       TopicRulePayload:
-        Sql: SELECT topic(2) AS id, timestamp() AS timestamp, value FROM 'temperature/#'
+        Sql: SELECT *, topic(2) AS device_id, timestamp() AS timestamp FROM 'env-sensor/#'
         RuleDisabled: false
         Actions:
           - DynamoDBv2:

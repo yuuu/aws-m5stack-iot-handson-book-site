@@ -24,27 +24,13 @@
           </svg>
           <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">IoT Dashboard</span>
         </a>
-        <div class="flex items-center lg:order-2">
-          <button data-collapse-toggle="mobile-menu-2" type="button"
-            class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            aria-controls="mobile-menu-2" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd"
-                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"></path>
-            </svg>
-            <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clip-rule="evenodd"></path>
-            </svg>
-          </button>
-        </div>
-        <div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2">
-          <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-            <!-- Dashboard menu item removed -->
-          </ul>
+        <div class="flex items-center">
+          <select id="sensor-select"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10">
+            <% @device_ids.each do |device_id| %>
+              <option value="<%= device_id %>" <%= @device_id == device_id ? 'selected' : '' %>><%= device_id %></option>
+            <% end %>
+          </select>
         </div>
       </div>
     </nav>
@@ -58,28 +44,28 @@
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">日時</h5>
           <p id="current-time" class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= Time.now.strftime('%Y-%m-%d %H:%M') %>
+            <%= @latest_record ? Time.at(@latest_record['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M') : '-' %>
           </p>
         </div>
         <!-- Temperature -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">温度</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @temperature.round(1) %> <span class="text-xl font-medium">°C</span>
+            <%= @latest_record ? @latest_record['temperature'].to_f.round(1) : '-' %> <span class="text-xl font-medium">°C</span>
           </p>
         </div>
         <!-- Humidity -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">湿度</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @humidity.round(1) %> <span class="text-xl font-medium">%</span>
+            <%= @latest_record ? @latest_record['humidity'].to_f.round(1) : '-' %> <span class="text-xl font-medium">%</span>
           </p>
         </div>
         <!-- Pressure -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">気圧</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @pressure.round(1) %> <span class="text-xl font-medium">hPa</span>
+            <%= @latest_record ? @latest_record['pressure'].to_f.round(1) : '-' %> <span class="text-xl font-medium">hPa</span>
           </p>
         </div>
       </div>
@@ -134,11 +120,25 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
   <script>
+    // --- Sensor Selection Logic ---
+    document.addEventListener("DOMContentLoaded", function () {
+      const select = document.getElementById("sensor-select");
+
+      select.addEventListener("change", function () {
+        const deviceId = this.value;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("device_id", deviceId);
+
+        window.location.href = url.toString();
+      });
+    });
+
     // --- Chart.js Sample Data and Configuration ---
-    const chartLabels = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00'];
-    const temp_data = [22.1, 22.3, 22.0, 21.8, 21.7, 21.6, 21.8, 22.5, 23.5, 24.1, 24.8, 25.2];
-    const humidity_data = [58, 59, 60, 62, 63, 63, 62, 60, 57, 55, 53, 50];
-    const pressure_data = [1013.1, 1013.0, 1012.8, 1012.5, 1012.4, 1012.4, 1012.6, 1012.9, 1013.2, 1013.5, 1013.4, 1013.2];
+    const chartLabels = [<%= @records.map { "'#{Time.at(it['timestamp'] / 1000).strftime('%H:%M')}'" }.join(', ') %>];
+    const temp_data = [<%= @records.map { it['temperature'].to_f.round(1) }.join(', ') %>];
+    const humidity_data = [<%= @records.map { it['humidity'].to_f.round(1) }.join(', ') %>];
+    const pressure_data = [<%= @records.map { it['pressure'].to_f.round(1) }.join(', ') %>];
 
     const commonChartOptions = {
       responsive: true,

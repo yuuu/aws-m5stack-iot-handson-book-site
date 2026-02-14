@@ -1,7 +1,7 @@
 # Makefile for M5Atom S3 ENV Sensor
 
 SKETCH_DIR = .
-PORT ?= /dev/ttyACM0
+PORT ?= /dev/tty.usbmodem101
 BAUDRATE = 115200
 
 # Arduino CLI command

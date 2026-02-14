@@ -35,7 +35,7 @@ bool connectWiFi(const WiFiConfig &config);
 void disconnectWiFi();
 bool connectMQTT(const MQTTConfig &config);
 void disconnectMQTT();
-void sendMQTT(const char* topic, Sensor &sensor);
+void sendMQTT(Sensor &sensor);
 
 void initSensor();
 bool readSensor(Sensor &sensor);
@@ -127,7 +127,7 @@ void disconnectMQTT()
   M5_LOGI("Disconnected from MQTT.");
 }
 
-void sendMQTT(const char* topic, Sensor &sensor)
+void sendMQTT(Sensor &sensor)
 {
   char payload[256];
   StaticJsonDocument<256> doc;
@@ -135,6 +135,10 @@ void sendMQTT(const char* topic, Sensor &sensor)
   doc["humidity"] = sensor.humidity;
   doc["pressure"] = sensor.pressure;
   serializeJson(doc, payload);
+
+  uint64_t chipid = ESP.getEfuseMac();
+  char topic[64];
+  snprintf(topic, sizeof(topic), "env-sensor/%04X%08X", (uint16_t)(chipid >> 32), (uint32_t)chipid);
 
   if (!client.publish(topic, payload))
   {
@@ -188,7 +192,7 @@ void doTask()
     WiFiConfig wifiConfig = { WIFI_SSID, WIFI_PASSWORD };
     MQTTConfig mqttConfig = { AWS_IOT_ENDPOINT, AWS_IOT_CERTIFICATE, AWS_IOT_PRIVATE_KEY, AWS_IOT_ROOT_CA, "env-sensor-device" };
     if (connectWiFi(wifiConfig) && connectMQTT(mqttConfig)) {
-      sendMQTT("env-sensor/data", sensor);
+      sendMQTT(sensor);
       disconnectMQTT();
       disconnectWiFi();
     } else {
