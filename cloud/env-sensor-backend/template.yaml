@@ -18,7 +18,7 @@ Globals:
         TZ: Asia/Tokyo
 
 Resources:
-  GetAllItemsFunction:
+  DashboardFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/dashboard/app.handler
