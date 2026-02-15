@@ -1,0 +1,40 @@
+name: CI 
+on: [push]
+jobs:
+  device-format:
+    defaults:
+      run:
+        working-directory: ./device/env-sensor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install formatter
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Format code
+        run: clang-format -i arduino_secrets_example.h env-sensor.ino
+      - name: Check for changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Code is not formatted. Please run clang-format on your code."
+            exit 1
+          fi
+
+  device-build:
+    needs: device-format
+    defaults:
+      run:
+        working-directory: ./device/env-sensor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+        with:
+          version: 1.4.1
+      - name: Prepare secrets
+        run: cp arduino_secrets_example.h arduino_secrets.h
+      - name: Build
+        run: arduino-cli compile .
+
