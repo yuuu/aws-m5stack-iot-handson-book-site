@@ -35,7 +35,6 @@ Resources:
   SensorReadingsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: SensorReadings
       AttributeDefinitions:
         - AttributeName: device_id
           AttributeType: S
@@ -51,7 +50,6 @@ Resources:
   IoTTopicRuleDynamoDBv2:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: StorageTemperature
       TopicRulePayload:
         Sql: SELECT *, topic(2) AS device_id, timestamp() AS timestamp FROM 'env-sensor/#'
         RuleDisabled: false
@@ -64,7 +62,6 @@ Resources:
   IoTTopicRuleIAMRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: IAMRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -75,7 +72,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Policies:
-        - PolicyName: IoTRuleDynamoDBPolicy
+        - PolicyName: !Sub '${AWS::StackName}-IoTRuleDynamoDBPolicy' 
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
