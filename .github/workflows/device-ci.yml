@@ -10,7 +10,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Install formatter
-        run: apt-get update && apt-get install -y clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
       - name: Format code
         run: clang-format -i arduino_secrets_example.h env-sensor.ino
       - name: Check for changes
@@ -33,6 +33,8 @@ jobs:
         uses: arduino/setup-arduino-cli@v2
         with:
           version: 1.4.1
+      - name: Prepare secrets
+        run: cp arduino_secrets_example.h arduino_secrets.h
       - name: Build
         run: arduino-cli compile .
 
