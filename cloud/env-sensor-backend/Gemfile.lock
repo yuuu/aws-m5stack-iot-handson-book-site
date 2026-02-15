@@ -70,6 +70,8 @@ GEM
       nokogiri (>= 1.12.0)
     minitest (6.0.1)
       prism (~> 1.5)
+    mocha (3.0.2)
+      ruby2_keywords (>= 0.0.5)
     nokogiri (1.19.0-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.0-x86_64-linux-gnu)
@@ -104,6 +106,7 @@ GEM
       parser (>= 3.3.7.2)
       prism (~> 1.7)
     ruby-progressbar (1.13.0)
+    ruby2_keywords (0.0.5)
     securerandom (0.4.1)
     smart_properties (1.17.0)
     tzinfo (2.0.6)
@@ -120,6 +123,8 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk-dynamodb
   erb_lint
+  minitest
+  mocha
   rubocop
 
 RUBY VERSION
