@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  env-sensor-backend
+  env-sensor-backend-ruby
 
 Transform:
 - AWS::Serverless-2016-10-31

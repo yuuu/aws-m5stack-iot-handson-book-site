@@ -4,7 +4,7 @@ jobs:
   cloud-ruby-lint:
     defaults:
       run:
-        working-directory: ./cloud/env-sensor-backend
+        working-directory: ./cloud/env-sensor-backend-ruby
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,7 +15,7 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-          working-directory: cloud/env-sensor-backend
+          working-directory: cloud/env-sensor-backend-ruby
       
       - name: RuboCop
         run: bundle exec rubocop
@@ -27,7 +27,7 @@ jobs:
     needs: cloud-ruby-lint
     defaults:
       run:
-        working-directory: ./cloud/env-sensor-backend
+        working-directory: ./cloud/env-sensor-backend-ruby
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-          working-directory: cloud/env-sensor-backend
+          working-directory: cloud/env-sensor-backend-ruby
       
       - name: Set up AWS SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -49,7 +49,7 @@ jobs:
   cloud-ruby-test:
     defaults:
       run:
-        working-directory: ./cloud/env-sensor-backend
+        working-directory: ./cloud/env-sensor-backend-ruby
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -60,7 +60,7 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-          working-directory: cloud/env-sensor-backend
+          working-directory: cloud/env-sensor-backend-ruby
 
       - name: Set up AWS SAM CLI
         uses: aws-actions/setup-sam@v2
