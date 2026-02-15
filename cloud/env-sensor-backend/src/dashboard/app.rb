@@ -30,6 +30,14 @@ def records_for_device(device_id)
   res.items
 end
 
+def response_html(body)
+  {
+    statusCode: 200,
+    headers: { 'Content-Type': 'text/html' },
+    body:
+  }
+end
+
 def handler(event:, context:)
   @device_id = event.dig('queryStringParameters', 'device_id')
   @device_ids = device_ids
@@ -42,9 +50,5 @@ def handler(event:, context:)
   template = File.read(File.join(__dir__, 'index.html.erb'))
   body = ERB.new(template).result(binding)
 
-  {
-    statusCode: 200,
-    headers: { 'Content-Type': 'text/html' },
-    body: body
-  }
+  response_html(body)
 end

@@ -9,26 +9,23 @@
 
 #include "arduino_secrets.h"
 
-struct Sensor
-{
+struct Sensor {
   float temperature;
   float humidity;
   float pressure;
 };
 
-struct WiFiConfig
-{
-  const char* ssid;
-  const char* password;
+struct WiFiConfig {
+  const char *ssid;
+  const char *password;
 };
 
-struct MQTTConfig
-{
-  const char* endpoint;
-  const char* certificate;
-  const char* privateKey;
-  const char* rootCA;
-  const char* clientID;
+struct MQTTConfig {
+  const char *endpoint;
+  const char *certificate;
+  const char *privateKey;
+  const char *rootCA;
+  const char *clientID;
 };
 
 bool connectWiFi(const WiFiConfig &config);
@@ -43,24 +40,22 @@ bool readSensor(Sensor &sensor);
 void doTask();
 void exit();
 
-namespace
-{
-  auto &lcd = M5.Display;
-  m5::unit::UnitUnified Units;
-  m5::unit::UnitENV3 unitENV3;
-  auto &sht30 = unitENV3.sht30;
-  auto &qmp6988 = unitENV3.qmp6988;
+namespace {
+auto &lcd = M5.Display;
+m5::unit::UnitUnified Units;
+m5::unit::UnitENV3 unitENV3;
+auto &sht30 = unitENV3.sht30;
+auto &qmp6988 = unitENV3.qmp6988;
 
-  Sensor sensor;
-  Task task(60000, TASK_FOREVER, &doTask);
-  Scheduler runner;
+Sensor sensor;
+Task task(60000, TASK_FOREVER, &doTask);
+Scheduler runner;
 
-  WiFiClientSecure net = WiFiClientSecure();
-  MQTTClient client = MQTTClient(256);
+WiFiClientSecure net = WiFiClientSecure();
+MQTTClient client = MQTTClient(256);
 }
 
-void setup()
-{
+void setup() {
   M5.begin();
   M5.Log.setLogLevel(m5::log_target_serial, ESP_LOG_INFO);
   M5.Log.setEnableColor(m5::log_target_serial, true);
@@ -74,18 +69,15 @@ void setup()
   delay(1000);
 }
 
-void loop()
-{
+void loop() {
   runner.execute();
 }
 
-bool connectWiFi(const WiFiConfig &config)
-{
+bool connectWiFi(const WiFiConfig &config) {
   int retry_count = 0;
   WiFi.begin(config.ssid, config.password);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     retry_count++;
     if (retry_count > 10) {
       M5_LOGE("Failed to connect to WiFi. Retrying...");
@@ -98,21 +90,18 @@ bool connectWiFi(const WiFiConfig &config)
   return true;
 }
 
-void disconnectWiFi()
-{
+void disconnectWiFi() {
   WiFi.disconnect();
   M5_LOGI("Disconnected from WiFi.");
 }
 
-bool connectMQTT(const MQTTConfig &config)
-{
+bool connectMQTT(const MQTTConfig &config) {
   net.setCACert(config.rootCA);
   net.setCertificate(config.certificate);
   net.setPrivateKey(config.privateKey);
   client.begin(config.endpoint, 8883, net);
 
-  if (!client.connect(config.clientID))
-  {
+  if (!client.connect(config.clientID)) {
     M5_LOGE("Failed to connect to MQTT. Retrying...");
     return false;
   }
@@ -121,14 +110,12 @@ bool connectMQTT(const MQTTConfig &config)
   return true;
 }
 
-void disconnectMQTT()
-{
+void disconnectMQTT() {
   client.disconnect();
   M5_LOGI("Disconnected from MQTT.");
 }
 
-void sendMQTT(Sensor &sensor)
-{
+void sendMQTT(Sensor &sensor) {
   char payload[256];
   StaticJsonDocument<256> doc;
   doc["temperature"] = sensor.temperature;
@@ -140,24 +127,21 @@ void sendMQTT(Sensor &sensor)
   char topic[64];
   snprintf(topic, sizeof(topic), "env-sensor/%04X%08X", (uint16_t)(chipid >> 32), (uint32_t)chipid);
 
-  if (!client.publish(topic, payload))
-  {
+  if (!client.publish(topic, payload)) {
     M5_LOGE("MQTT publish failed.");
   }
 
   M5_LOGI("MQTT publish succeeded.");
 }
 
-void initSensor()
-{
+void initSensor() {
   auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
   auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
 
   Wire.end();
   Wire.begin(pin_num_sda, pin_num_scl, 400000U);
 
-  if (!Units.add(unitENV3, Wire) || !Units.begin())
-  {
+  if (!Units.add(unitENV3, Wire) || !Units.begin()) {
     M5_LOGE("Failed to initialize ENV sensor unit.");
     exit();
   }
@@ -165,10 +149,8 @@ void initSensor()
   M5_LOGI("ENV sensor unit initialized.");
 }
 
-bool readSensor(Sensor &sensor)
-{
-  if (!sht30.updated() || !qmp6988.updated())
-  {
+bool readSensor(Sensor &sensor) {
+  if (!sht30.updated() || !qmp6988.updated()) {
     M5_LOGW("Sensor data not updated yet.");
     return false;
   }
@@ -181,13 +163,12 @@ bool readSensor(Sensor &sensor)
   return true;
 }
 
-void doTask()
-{
+void doTask() {
   M5.update();
   Units.update();
   Sensor sensor;
 
-  if(readSensor(sensor)) {
+  if (readSensor(sensor)) {
     M5_LOGI("Temperature: %2.2f, Humidity:%2.2f, Pressure: %.2f", sensor.temperature, sensor.humidity, sensor.pressure);
     WiFiConfig wifiConfig = { WIFI_SSID, WIFI_PASSWORD };
     MQTTConfig mqttConfig = { AWS_IOT_ENDPOINT, AWS_IOT_CERTIFICATE, AWS_IOT_PRIVATE_KEY, AWS_IOT_ROOT_CA, "env-sensor-device" };
