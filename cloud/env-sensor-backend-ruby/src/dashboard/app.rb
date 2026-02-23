@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'erb'
-require 'json'
 require 'aws-sdk-dynamodb'
 
 ONE_DAY_AGO = (Time.now - (60 * 60 * 24)).to_i * 1000

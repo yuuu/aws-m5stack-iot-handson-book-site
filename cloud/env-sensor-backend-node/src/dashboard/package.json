@@ -1,0 +1,12 @@
+{
+  "name": "dashboard-function",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "IoT Environment Sensor Dashboard Lambda Function",
+  "main": "app.mjs",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.995.0",
+    "@aws-sdk/lib-dynamodb": "^3.995.0",
+    "ejs": "^4.0.1"
+  }
+}

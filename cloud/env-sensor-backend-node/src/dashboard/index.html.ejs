@@ -27,9 +27,9 @@
         <div class="flex items-center">
           <select id="sensor-select"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10">
-            <% @device_ids.each do |device_id| %>
-              <option value="<%= device_id %>" <%= @device_id == device_id ? 'selected' : '' %>><%= device_id %></option>
-            <% end %>
+            <% deviceIds.forEach(function(id) { %>
+              <option value="<%= id %>" <%= deviceId === id ? 'selected' : '' %>><%= id %></option>
+            <% }); %>
           </select>
         </div>
       </div>
@@ -44,28 +44,28 @@
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">日時</h5>
           <p id="current-time" class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @latest_record ? Time.at(@latest_record['timestamp'] / 1000).strftime('%Y/%m/%d %H:%M') : '-' %>
+            <%= latestRecord ? formatTime(latestRecord.timestamp) : '-' %>
           </p>
         </div>
         <!-- Temperature -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">温度</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @latest_record ? @latest_record['temperature'].to_f.round(1) : '-' %> <span class="text-xl font-medium">°C</span>
+            <%= latestRecord ? Number(latestRecord.temperature || 0).toFixed(1) : '-' %> <span class="text-xl font-medium">°C</span>
           </p>
         </div>
         <!-- Humidity -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">湿度</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @latest_record ? @latest_record['humidity'].to_f.round(1) : '-' %> <span class="text-xl font-medium">%</span>
+            <%= latestRecord ? Number(latestRecord.humidity || 0).toFixed(1) : '-' %> <span class="text-xl font-medium">%</span>
           </p>
         </div>
         <!-- Pressure -->
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 class="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">気圧</h5>
           <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            <%= @latest_record ? @latest_record['pressure'].to_f.round(1) : '-' %> <span class="text-xl font-medium">hPa</span>
+            <%= latestRecord ? Number(latestRecord.pressure || 0).toFixed(1) : '-' %> <span class="text-xl font-medium">hPa</span>
           </p>
         </div>
       </div>
@@ -135,10 +135,10 @@
     });
 
     // --- Chart.js Sample Data and Configuration ---
-    const chartLabels = [<%= @records.map { "'#{Time.at(it['timestamp'] / 1000).strftime('%H:%M')}'" }.join(', ') %>];
-    const temp_data = [<%= @records.map { it['temperature'].to_f.round(1) }.join(', ') %>];
-    const humidity_data = [<%= @records.map { it['humidity'].to_f.round(1) }.join(', ') %>];
-    const pressure_data = [<%= @records.map { it['pressure'].to_f.round(1) }.join(', ') %>];
+    const chartLabels = <%- JSON.stringify(records.map(r => formatTimeOnly(r.timestamp))) %>;
+    const temp_data = [<%= records.map(r => Number(r.temperature || 0).toFixed(1)).join(', ') %>];
+    const humidity_data = [<%= records.map(r => Number(r.humidity || 0).toFixed(1)).join(', ') %>];
+    const pressure_data = [<%= records.map(r => Number(r.pressure || 0).toFixed(1)).join(', ') %>];
 
     const commonChartOptions = {
       responsive: true,
