@@ -35,6 +35,8 @@ jobs:
           version: 1.4.1
       - name: Prepare secrets
         run: cp arduino_secrets_example.h arduino_secrets.h
-      - name: Build
-        run: arduino-cli compile .
+      - name: Build for atoms3-lite
+        run: arduino-cli compile . --profile atoms3-lite
+      - name: Build for cores3
+        run: arduino-cli compile . --profile cores3
 
