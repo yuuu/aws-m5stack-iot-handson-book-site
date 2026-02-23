@@ -39,13 +39,14 @@ def response_html(body)
 end
 
 def handler(event:, context:)
-  @device_id = event.dig('queryStringParameters', 'device_id')
   @device_ids = device_ids
+  @device_id = event.dig('queryStringParameters', 'device_id') || @device_ids.first
 
   if @device_id && @device_ids.include?(@device_id)
     @records = records_for_device(@device_id)
     @latest_record = @records.max_by { |r| r['timestamp'] }
   end
+  @records ||= []
 
   template = File.read(File.join(__dir__, 'index.html.erb'))
   body = ERB.new(template).result(binding)

@@ -3,28 +3,30 @@
 SKETCH_DIR = .
 PORT ?= /dev/tty.usbmodem101
 BAUDRATE = 115200
+PROFILE ?= atoms3-lite
 
 # Arduino CLI command
 ARDUINO_CLI = arduino-cli
 
+.DEFAULT_GOAL := all
+
 # Build the sketch
 build:
-	$(ARDUINO_CLI) compile $(SKETCH_DIR)
+	$(ARDUINO_CLI) compile $(SKETCH_DIR) --profile ${PROFILE}
 
 # Upload to the device
 upload:
-	$(ARDUINO_CLI) upload $(SKETCH_DIR) -p $(PORT)
+	$(ARDUINO_CLI) upload $(SKETCH_DIR) -p $(PORT) --profile ${PROFILE}
 
 # Open serial monitor
 monitor:
-	$(ARDUINO_CLI) monitor -p $(PORT) -c baudrate=$(BAUDRATE)
+	$(ARDUINO_CLI) monitor -p $(PORT) -c baudrate=$(BAUDRATE) --profile ${PROFILE}
 
 # Build and upload
 flash: build upload
 
-# Clean build artifacts
-clean:
-	rm -rf build/
+# Build, upload and monitor
+all: flash monitor
 
 # List available ports
 list-ports:
@@ -37,8 +39,8 @@ help:
 	@echo "  upload      - Upload to the device (PORT=/dev/ttyACM0)"
 	@echo "  monitor     - Open serial monitor"
 	@echo "  flash       - Build and upload"
+	@echo "  all         - Build, upload and monitor"
 	@echo "  list-ports  - List available serial ports"
-	@echo "  clean       - Remove build artifacts"
 	@echo "  help        - Show this help message"
 	@echo ""
 	@echo "Usage examples:"
