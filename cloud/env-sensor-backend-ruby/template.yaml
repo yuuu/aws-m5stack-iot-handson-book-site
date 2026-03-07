@@ -46,12 +46,15 @@ Resources:
         - AttributeName: timestamp
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
 
   IoTTopicRuleDynamoDBv2:
     Type: AWS::IoT::TopicRule
     Properties:
       TopicRulePayload:
-        Sql: SELECT *, topic(2) AS device_id, timestamp() AS timestamp FROM 'env-sensor/#'
+        Sql: SELECT *, topic(2) AS device_id, timestamp() AS timestamp, timestamp() / 1000 + (60 * 60 * 24) AS ttl FROM 'env-sensor/#'
         RuleDisabled: false
         Actions:
           - DynamoDBv2:
