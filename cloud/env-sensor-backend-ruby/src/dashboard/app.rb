@@ -16,7 +16,7 @@ end
 def records_for_device(device_id)
   res = dynamodb_table.query(
     key_condition_expression: 'device_id = :device_id',
-    expression_attribute_values: { ':device_id' => device_id },
+    expression_attribute_values: { ':device_id' => device_id }
   )
   res.items
 end
@@ -31,6 +31,7 @@ def response_html
   }
 end
 
+# rubocop:disable Lint/UnusedMethodArgument
 def handler(event:, context:)
   @device_ids = device_ids
   @device_id = event.dig('queryStringParameters', 'device_id') || @device_ids.first
@@ -43,3 +44,4 @@ def handler(event:, context:)
 
   response_html
 end
+# rubocop:enable Lint/UnusedMethodArgument

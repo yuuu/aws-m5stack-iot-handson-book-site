@@ -43,10 +43,7 @@ class TestApp < Minitest::Test
 
   def test_device_ids_returns_unique_ids
     @mock_table.expects(:scan).with(
-      projection_expression: :device_id,
-      filter_expression: '#TS > :timestamp',
-      expression_attribute_values: { ':timestamp' => (Time.now - (60 * 60 * 24)).to_i * 1000 },
-      expression_attribute_names: { '#TS' => 'timestamp' }
+      projection_expression: :device_id
     ).returns(stub(items: [
                      { 'device_id' => 'device1', 'timestamp' => 1 },
                      { 'device_id' => 'device2', 'timestamp' => 2 },
@@ -58,11 +55,9 @@ class TestApp < Minitest::Test
 
   def test_records_for_device_returns_correct_records
     device_id = 'device1'
-    expected_timestamp = (Time.now - (60 * 60 * 24)).to_i * 1000
     @mock_table.expects(:query).with(
-      key_condition_expression: 'device_id = :device_id AND #TS > :timestamp',
-      expression_attribute_values: { ':device_id' => device_id, ':timestamp' => expected_timestamp },
-      expression_attribute_names: { '#TS' => 'timestamp' }
+      key_condition_expression: 'device_id = :device_id',
+      expression_attribute_values: { ':device_id' => device_id }
     ).returns(stub(items: [
                      { 'device_id' => 'device1', 'timestamp' => 10 },
                      { 'device_id' => 'device1', 'timestamp' => 20 }
