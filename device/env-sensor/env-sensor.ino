@@ -47,7 +47,6 @@ m5::unit::UnitENV3 unitENV3;
 auto &sht30 = unitENV3.sht30;
 auto &qmp6988 = unitENV3.qmp6988;
 
-Sensor sensor;
 Task task(60000, TASK_FOREVER, &doTask);
 Scheduler runner;
 
