@@ -33,4 +33,4 @@ profiles:
       - ArduinoJson (7.2.1)
       - MQTT (2.5.2)
       - TaskScheduler (4.0.4)
-default_profile: default
+default_profile: atoms3-lite

@@ -24,7 +24,6 @@ end
 def response_html
   template = File.read(File.join(__dir__, 'index.html.erb'))
   body = ERB.new(template).result(binding)
-
   {
     statusCode: 200,
     headers: { 'Content-Type': 'text/html' },

@@ -1,2 +1,4 @@
 # Arduino secrets
 device/**/arduino_secrets.h
+device/**/certs/*
+!device/**/certs/.keep
