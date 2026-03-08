@@ -15,8 +15,6 @@ const __dirname = dirname(__filename);
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-const ONE_DAY_AGO = Date.now() - 60 * 60 * 24 * 1000;
-
 // Get unique device IDs from the last 24 hours
 async function getDeviceIds() {
   const tableName = process.env.SENSOR_READINGS_TABLE || '';
@@ -24,9 +22,6 @@ async function getDeviceIds() {
   const command = new ScanCommand({
     TableName: tableName,
     ProjectionExpression: 'device_id',
-    FilterExpression: '#TS > :timestamp',
-    ExpressionAttributeNames: { '#TS': 'timestamp' },
-    ExpressionAttributeValues: { ':timestamp': ONE_DAY_AGO },
   });
 
   const response = await docClient.send(command);
@@ -40,11 +35,9 @@ async function getRecordsForDevice(deviceId) {
 
   const command = new QueryCommand({
     TableName: tableName,
-    KeyConditionExpression: 'device_id = :device_id AND #TS > :timestamp',
-    ExpressionAttributeNames: { '#TS': 'timestamp' },
+    KeyConditionExpression: 'device_id = :device_id',
     ExpressionAttributeValues: {
       ':device_id': deviceId,
-      ':timestamp': ONE_DAY_AGO,
     },
   });
 
