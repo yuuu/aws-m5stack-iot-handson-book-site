@@ -1,4 +1,4 @@
-# AWSとM5StickCで作るIoT開発入門 サポートページ 
+# AWSとM5Stackで作るIoT開発入門 サポートページ 
 
 本リポジトリは [技術書典20](https://techbookfest.org/event/tbf20) で頒布した技術書「AWSとM5Stackで作るIoT開発入門」のサポートページです。
 
