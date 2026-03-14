@@ -2,6 +2,10 @@
 
 本リポジトリは [技術書典20](https://techbookfest.org/event/tbf20) で頒布した技術書「AWSとM5Stackで作るIoT開発入門」のサポートページです。
 
+![表紙](https://github.com/yuuu/aws-m5stack-iot-handson-book-site/blob/9dffa9f189f3e2d0cd392e0821ad1c136d6e90ac/images/cover.png)
+![ダッシュボード](https://github.com/yuuu/aws-m5stack-iot-handson-book-site/blob/9dffa9f189f3e2d0cd392e0821ad1c136d6e90ac/images/dashboard.png)
+![AWS構成図](https://github.com/yuuu/aws-m5stack-iot-handson-book-site/blob/9dffa9f189f3e2d0cd392e0821ad1c136d6e90ac/images/aws-design.png)
+
 ## ディレクトリ構成
 
 本リポジトリのディレクトリ構成は次の通りです。
